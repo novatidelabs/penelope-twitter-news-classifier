@@ -1,0 +1,85 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+tests/
+
+# Documentation (except README)
+docs/
+*.md
+!README.md
+
+# Development files
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# Environment files (should be passed at runtime)
+.env
+.env.*
+!.env.example
+
+# Results and logs (generated at runtime)
+results/
+logs/
+*.log
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Large data files that shouldn't be in container
+data/real_extraction/
+data/workflow_runs/
+
+# Presentation and documentation files
+CTO_*.md
+EXECUTIVE_*.md
+SYSTEM_*.md
+REFACTOR_*.md
+*_PRESENTATION*.md

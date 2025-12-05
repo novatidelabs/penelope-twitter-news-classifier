@@ -51,6 +51,8 @@ pip install -r requirements.txt
    ```
 
 ### Running the Complete Analysis
+
+#### Local Execution
 ```bash
 # Single command execution
 python3 main.py
@@ -61,6 +63,78 @@ python3 main.py
 # ✅ 100% success rate
 # ✅ Results saved to results/twitter_analysis_results_YYYYMMDD_HHMMSS.json
 ```
+
+## 🐳 Docker Deployment
+
+### Build and Run with Docker
+
+```bash
+# Build the Docker image
+docker build -t twitter-news-classifier:latest .
+
+# Run the container with environment file
+docker run --rm --env-file .env \
+  -v $(pwd)/results:/app/results \
+  -v $(pwd)/data:/app/data \
+  twitter-news-classifier:latest
+
+# Run interactively for debugging
+docker run -it --rm --env-file .env \
+  -v $(pwd)/results:/app/results \
+  twitter-news-classifier:latest /bin/bash
+```
+
+### Docker Compose (Optional)
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+services:
+  twitter-classifier:
+    build: .
+    env_file: .env
+    volumes:
+      - ./results:/app/results
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+Then run:
+```bash
+docker-compose up --build
+```
+
+### Production Deployment
+
+For production environments:
+
+```bash
+# Build optimized image
+docker build -t twitter-news-classifier:v2.0.0 .
+
+# Run with resource limits
+docker run -d --name twitter-classifier \
+  --env-file .env \
+  --memory=2g \
+  --cpus=1.0 \
+  -v /host/results:/app/results \
+  -v /host/data:/app/data \
+  --restart=unless-stopped \
+  twitter-news-classifier:v2.0.0
+```
+
+**Docker Features:**
+- 🔒 **Security**: Runs as non-root user
+- 📦 **Lightweight**: Based on Python 3.11 slim image
+- 🔄 **Health Checks**: Built-in container health monitoring
+- 📁 **Volume Mounts**: Persistent storage for results and data
+- 🌍 **Environment**: Configurable via environment variables
 
 ## 🏗️ System Architecture
 
