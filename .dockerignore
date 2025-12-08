@@ -1,85 +1,86 @@
-# Git
-.git
-.gitignore
-.gitattributes
-
-# Python cache
-__pycache__
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
-*.egg-info/
-dist/
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
 *.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
 
 # Virtual environments
-venv/
-env/
-ENV/
+.env
 .venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+
+# OS
 .DS_Store
-
-# Testing and coverage
-.pytest_cache/
-.coverage
-htmlcov/
-coverage.xml
-*.cover
-.hypothesis/
-tests/
-
-# Documentation (except README)
-docs/
-*.md
-!README.md
-
-# Development files
-Dockerfile
-.dockerignore
-docker-compose.yml
-docker-compose.*.yml
-
-# Environment files (should be passed at runtime)
-.env
-.env.*
-!.env.example
-
-# Results and logs (generated at runtime)
-results/
-logs/
-*.log
-
-# Jupyter notebooks
-*.ipynb
-.ipynb_checkpoints
-
-# OS files
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Cache
+*.cache
+.cache/
 
 # Temporary files
-tmp/
-temp/
 *.tmp
-*.bak
-*.swp
-
-# Large data files that shouldn't be in container
-data/real_extraction/
-data/workflow_runs/
-
-# Presentation and documentation files
-CTO_*.md
-EXECUTIVE_*.md
-SYSTEM_*.md
-REFACTOR_*.md
-*_PRESENTATION*.md
+*.temp
+.tmp/
+.temp/ 
