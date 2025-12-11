@@ -1,0 +1,71 @@
+"""
+🔧 CONFIGURATION MODULE
+======================
+Application configuration constants and settings.
+Separates constants from sensitive environment variables.
+"""
+
+# Application Constants
+APP_NAME = "TwitterNewsClassifier"
+APP_VERSION = "2.0"
+USER_AGENT = f"{APP_NAME}/{APP_VERSION}"
+
+# Reddit Configuration
+REDDIT_USER_AGENT = USER_AGENT
+
+# Analysis Configuration
+DEFAULT_ANALYSIS_TIMEOUT = 60  # seconds
+MAX_TWEETS_PER_BATCH = 10
+SCORE_SCALE_MIN = 0
+SCORE_SCALE_MAX = 10
+
+# Workflow Configuration
+DEFAULT_MAX_TWEETS = 30
+DEFAULT_HOURS_BACK = 24
+DEFAULT_BATCH_SIZE = 5
+DEFAULT_MAX_RETRIES = 3
+DEFAULT_RETRY_DELAY = 30
+
+# OpenAI Configuration
+OPENAI_MODEL = "gpt-4"
+OPENAI_MAX_TOKENS = 2000
+OPENAI_TEMPERATURE = 0.3
+
+# Score Consolidation Configuration
+SARCASM_PROTECTION_MAX_BOOST = 2.0
+SARCASM_PROTECTION_THRESHOLD = 0.5
+ECHO_VELOCITY_MAX_BOOST = 1.5
+ECHO_VELOCITY_THRESHOLD = 0.5
+ECHO_VELOCITY_SCALING = 2.0
+SLOP_PENALTY_MAX = 2.5
+SLOP_PENALTY_THRESHOLD = 0.7
+SLOP_PENALTY_SCALING = 3.0
+TONE_PENALTY_MAX = 2.0
+TONE_PENALTY_THRESHOLD = 0.3
+TONE_PENALTY_SCALING = 2.5
+
+# File Paths
+DEFAULT_RESULTS_DIR = "results"
+DEFAULT_DATA_DIR = "data"
+
+# Logging Configuration
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+LOG_LEVEL = "INFO"
+
+# API Rate Limits (requests per minute)
+OPENAI_RATE_LIMIT = 60
+REDDIT_RATE_LIMIT = 60
+BINANCE_RATE_LIMIT = 1200
+COINBASE_RATE_LIMIT = 10
+
+# Analysis Thresholds
+HIGH_CONFIDENCE_THRESHOLD = 8.0
+MEDIUM_CONFIDENCE_THRESHOLD = 5.0
+LOW_CONFIDENCE_THRESHOLD = 2.0
+
+# Signal Integrity Configuration
+BANNED_PHRASES_CHECK_ENABLED = True
+ECHO_MAPPING_CHECK_ENABLED = True
+LATENCY_GUARD_ENABLED = True
+SARCASM_DETECTION_ENABLED = True
+SLOP_FILTER_ENABLED = True

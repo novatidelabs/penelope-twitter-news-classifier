@@ -17,6 +17,12 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from ...entities.analysis_result import AnalysisResult, AnalysisStatus
+from infrastructure.config import (
+    SARCASM_PROTECTION_MAX_BOOST, SARCASM_PROTECTION_THRESHOLD,
+    ECHO_VELOCITY_MAX_BOOST, ECHO_VELOCITY_THRESHOLD, ECHO_VELOCITY_SCALING,
+    SLOP_PENALTY_MAX, SLOP_PENALTY_THRESHOLD, SLOP_PENALTY_SCALING,
+    TONE_PENALTY_MAX, TONE_PENALTY_THRESHOLD, TONE_PENALTY_SCALING
+)
 
 
 @dataclass
@@ -62,23 +68,23 @@ class EnhancedScoreConsolidator:
         # Define score adjustment parameters
         self.adjustment_config = {
             'sarcasm_protection': {
-                'max_boost': 2.0,
-                'threshold': 0.5  # Sarcasm probability threshold
+                'max_boost': SARCASM_PROTECTION_MAX_BOOST,
+                'threshold': SARCASM_PROTECTION_THRESHOLD
             },
             'echo_velocity_boost': {
-                'max_boost': 1.5,
-                'threshold': 0.5,  # Echo velocity threshold
-                'scaling': 2.0
+                'max_boost': ECHO_VELOCITY_MAX_BOOST,
+                'threshold': ECHO_VELOCITY_THRESHOLD,
+                'scaling': ECHO_VELOCITY_SCALING
             },
             'slop_penalty': {
-                'max_penalty': 2.5,
-                'threshold': 0.7,  # Slop score threshold
-                'scaling': 3.0
+                'max_penalty': SLOP_PENALTY_MAX,
+                'threshold': SLOP_PENALTY_THRESHOLD,
+                'scaling': SLOP_PENALTY_SCALING
             },
             'tone_penalty': {
-                'max_penalty': 2.0,
-                'threshold': 0.3,  # Tone penalty threshold
-                'scaling': 2.5
+                'max_penalty': TONE_PENALTY_MAX,
+                'threshold': TONE_PENALTY_THRESHOLD,
+                'scaling': TONE_PENALTY_SCALING
             }
         }
     

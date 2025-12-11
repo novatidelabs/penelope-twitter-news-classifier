@@ -36,8 +36,9 @@ pip install -r requirements.txt
 ```
 
 ### Configuration
-1. Copy `.env.example` to `.env`
-2. Add your API keys:
+1. Create `.env` file with your API keys (see `docs/ENV_TEMPLATE.md` for template)
+2. Configuration constants are managed in `infrastructure/config.py`
+3. Add your sensitive API keys to `.env`:
    ```bash
    OPENAI_API_KEY=your_openai_key_here
    
