@@ -52,6 +52,8 @@ pip install -r requirements.txt
    ```
 
 ### Running the Complete Analysis
+
+#### Local Execution
 ```bash
 # Single command execution
 python3 main.py
@@ -62,6 +64,173 @@ python3 main.py
 # ✅ 100% success rate
 # ✅ Results saved to results/twitter_analysis_results_YYYYMMDD_HHMMSS.json
 ```
+
+## 🐳 Docker Deployment
+
+### Quick Start with Docker
+
+```bash
+# Build the Docker image
+docker build -t twitter-classifier .
+
+# Run with your .env file
+docker run --rm --env-file .env twitter-classifier
+```
+
+### Docker Configuration Files
+
+#### Dockerfile
+The project includes an optimized Dockerfile with the following features:
+
+```dockerfile
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Set work directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Change ownership to non-root user
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Run the application
+CMD ["python", "main.py"]
+```
+
+#### .dockerignore
+The `.dockerignore` file excludes unnecessary files from the Docker build context:
+
+```dockerignore
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and cache
+*.log
+logs/
+*.cache
+.cache/
+
+# Git and temporary files
+.git/
+*.tmp
+*.temp
+```
+
+### Advanced Docker Usage
+
+#### Development Mode
+```bash
+# Run with volume mounts for development
+docker run --rm --env-file .env \
+  -v $(pwd)/results:/app/results \
+  -v $(pwd)/data:/app/data \
+  twitter-classifier
+
+# Interactive debugging
+docker run -it --rm --env-file .env \
+  twitter-classifier /bin/bash
+```
+
+#### Docker Compose (Optional)
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+services:
+  twitter-classifier:
+    build: .
+    env_file: .env
+    volumes:
+      - ./results:/app/results
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+Then run:
+```bash
+docker-compose up --build
+```
+
+#### Production Deployment
+
+For production environments:
+
+```bash
+# Build optimized image with version tag
+docker build -t twitter-classifier:v2.0.0 .
+
+# Run with resource limits and monitoring
+docker run -d --name twitter-classifier \
+  --env-file .env \
+  --memory=2g \
+  --cpus=1.0 \
+  -v /host/results:/app/results \
+  -v /host/data:/app/data \
+  --restart=unless-stopped \
+  --health-cmd="python -c 'import sys; sys.exit(0)'" \
+  --health-interval=30s \
+  twitter-classifier:v2.0.0
+```
+
+### Docker Features & Benefits
+
+- 🔒 **Security**: Runs as non-root user (`appuser`)
+- 📦 **Lightweight**: Based on Python 3.11 slim image (~2.4GB)
+- 🚀 **Fast Builds**: Multi-layer caching with requirements.txt optimization
+- 🔄 **Health Checks**: Built-in container health monitoring
+- 📁 **Volume Support**: Persistent storage for results and data
+- 🌍 **Environment**: Full .env file support
+- 🛡️ **Production Ready**: Resource limits and restart policies
+- 🧹 **Clean Builds**: Comprehensive .dockerignore for smaller images
 
 ## 🏗️ System Architecture
 
