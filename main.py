@@ -41,7 +41,7 @@ from domain.services.signal_integrity.banned_phrase_skeptic_agent import BannedP
 from domain.services.core_analysis.multi_agent_analyzer import MultiAgentAnalyzer
 from domain.entities.tweet import Tweet, UserMetadata, MediaAttachment, ThreadContext
 from dotenv import load_dotenv
-from infrastructure.config import REDDIT_USER_AGENT
+from infrastructure.config import config
 
 # Configure logging
 logging.basicConfig(
@@ -186,7 +186,7 @@ async def initialize_agents(openai_api_key: str) -> Dict[str, Any]:
         reddit_config = {
             'client_id': os.getenv('REDDIT_CLIENT_ID'),
             'client_secret': os.getenv('REDDIT_CLIENT_SECRET'),
-            'user_agent': REDDIT_USER_AGENT
+            'user_agent': config.reddit_user_agent
         }
         agents['echo_mapper'] = EchoMapperAgent(memory_store, reddit_config)
         

@@ -17,12 +17,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from ...entities.analysis_result import AnalysisResult, AnalysisStatus
-from infrastructure.config import (
-    SARCASM_PROTECTION_MAX_BOOST, SARCASM_PROTECTION_THRESHOLD,
-    ECHO_VELOCITY_MAX_BOOST, ECHO_VELOCITY_THRESHOLD, ECHO_VELOCITY_SCALING,
-    SLOP_PENALTY_MAX, SLOP_PENALTY_THRESHOLD, SLOP_PENALTY_SCALING,
-    TONE_PENALTY_MAX, TONE_PENALTY_THRESHOLD, TONE_PENALTY_SCALING
-)
+from infrastructure.config import config
 
 
 @dataclass
@@ -68,23 +63,23 @@ class EnhancedScoreConsolidator:
         # Define score adjustment parameters
         self.adjustment_config = {
             'sarcasm_protection': {
-                'max_boost': SARCASM_PROTECTION_MAX_BOOST,
-                'threshold': SARCASM_PROTECTION_THRESHOLD
+                'max_boost': config.sarcasm_protection_max_boost,
+                'threshold': config.sarcasm_protection_threshold
             },
             'echo_velocity_boost': {
-                'max_boost': ECHO_VELOCITY_MAX_BOOST,
-                'threshold': ECHO_VELOCITY_THRESHOLD,
-                'scaling': ECHO_VELOCITY_SCALING
+                'max_boost': config.echo_velocity_max_boost,
+                'threshold': config.echo_velocity_threshold,
+                'scaling': config.echo_velocity_scaling
             },
             'slop_penalty': {
-                'max_penalty': SLOP_PENALTY_MAX,
-                'threshold': SLOP_PENALTY_THRESHOLD,
-                'scaling': SLOP_PENALTY_SCALING
+                'max_penalty': config.slop_penalty_max,
+                'threshold': config.slop_penalty_threshold,
+                'scaling': config.slop_penalty_scaling
             },
             'tone_penalty': {
-                'max_penalty': TONE_PENALTY_MAX,
-                'threshold': TONE_PENALTY_THRESHOLD,
-                'scaling': TONE_PENALTY_SCALING
+                'max_penalty': config.tone_penalty_max,
+                'threshold': config.tone_penalty_threshold,
+                'scaling': config.tone_penalty_scaling
             }
         }
     
