@@ -8,6 +8,7 @@ Test script to verify that optional APIs are working correctly.
 import os
 import asyncio
 from dotenv import load_dotenv
+from infrastructure.config import config
 
 def test_reddit_api():
     """Test Reddit API connection"""
@@ -16,7 +17,7 @@ def test_reddit_api():
         
         client_id = os.getenv('REDDIT_CLIENT_ID')
         client_secret = os.getenv('REDDIT_CLIENT_SECRET')
-        user_agent = os.getenv('REDDIT_USER_AGENT', 'TwitterNewsClassifier/1.0')
+        user_agent = config.reddit_user_agent
         
         if not client_id or not client_secret:
             print("⚠️ Reddit API: Credentials not configured")
