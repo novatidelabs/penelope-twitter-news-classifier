@@ -1,18 +1,17 @@
 """
-Configuration Settings
-=====================
-Pydantic Settings for application configuration.
-"""
+Application Settings using Pydantic Settings
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+Centralized configuration management with environment variable support.
+"""
+from pydantic_settings import BaseSettings
 from typing import Optional
 
 
 class Settings(BaseSettings):
     """
-    Application settings using Pydantic Settings.
+    Application settings with Pydantic Settings.
     
-    Loads from environment variables with .env file support.
+    Automatically loads from environment variables or .env file.
     """
     
     # Application
@@ -20,7 +19,7 @@ class Settings(BaseSettings):
     app_version: str = "2.0"
     
     # OpenAI API (Required)
-    openai_api_key: str
+    openai_api_key: Optional[str] = None
     openai_model: str = "gpt-4"
     openai_max_tokens: int = 2000
     openai_temperature: float = 0.3
@@ -47,7 +46,7 @@ class Settings(BaseSettings):
     coinbase_api_passphrase: Optional[str] = None
     
     # Analysis Configuration
-    default_analysis_timeout: int = 60  # seconds
+    default_analysis_timeout: int = 60
     max_tweets_per_batch: int = 10
     score_scale_min: int = 0
     score_scale_max: int = 10
@@ -80,7 +79,7 @@ class Settings(BaseSettings):
     log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     log_level: str = "INFO"
     
-    # API Rate Limits (requests per minute)
+    # API Rate Limits
     openai_rate_limit: int = 60
     reddit_rate_limit: int = 60
     binance_rate_limit: int = 1200
@@ -98,27 +97,8 @@ class Settings(BaseSettings):
     sarcasm_detection_enabled: bool = True
     slop_filter_enabled: bool = True
     
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        extra="ignore"
-    )
-
-
-# Global settings instance
-_settings: Optional[Settings] = None
-
-
-def get_settings() -> Settings:
-    """
-    Get or create the global settings instance.
-    
-    Returns:
-        Settings instance
-    """
-    global _settings
-    if _settings is None:
-        _settings = Settings()
-    return _settings
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        case_sensitive = False
 

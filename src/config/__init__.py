@@ -1,10 +1,10 @@
 """
-Configuration Module
-===================
-Centralized configuration using Pydantic Settings.
+Configuration module using Pydantic Settings
 """
+from .settings import Settings
 
-from .settings import Settings, get_settings
+# Create global settings instance
+settings = Settings()
 
-__all__ = ["Settings", "get_settings"]
+__all__ = ['Settings', 'settings']
 

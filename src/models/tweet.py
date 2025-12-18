@@ -1,11 +1,10 @@
 """
 Tweet Data Model
-===============
+
 Pydantic model for tweet data structure.
 """
-
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 
 
@@ -13,12 +12,13 @@ class UserMetadata(BaseModel):
     """User metadata model"""
     user_id: str
     username: str
-    display_name: Optional[str] = None
-    created_at: Optional[datetime] = None
+    display_name: str
     description: Optional[str] = None
     verified: bool = False
+    followers_count: int = 0
+    following_count: int = 0
+    tweet_count: int = 0
     profile_image_url: Optional[str] = None
-    public_metrics: Dict[str, int] = Field(default_factory=dict)
 
 
 class MediaAttachment(BaseModel):
@@ -38,7 +38,7 @@ class ThreadContext(BaseModel):
 
 class TweetData(BaseModel):
     """
-    Tweet data model for LangGraph state.
+    Tweet data model for LangGraph workflow.
     
     Represents a tweet with all its metadata and context.
     """
@@ -56,35 +56,8 @@ class TweetData(BaseModel):
     external_links: List[str] = Field(default_factory=list)
     thread_context: Optional[ThreadContext] = None
     
-    @property
-    def engagement_score(self) -> float:
-        """Calculate engagement score (0-10 scale)"""
-        total_engagement = (
-            self.like_count * 1.0 +
-            self.retweet_count * 2.0 +
-            self.reply_count * 1.5 +
-            self.quote_count * 2.5
-        )
-        # Normalize to 0-10 scale (logarithmic)
-        import math
-        if total_engagement == 0:
-            return 0.0
-        return min(10.0, math.log10(total_engagement + 1) * 2.0)
-    
-    @property
-    def has_media(self) -> bool:
-        """Check if tweet has media attachments"""
-        return (
-            self.media_attachments is not None and
-            (len(self.media_attachments.links_analyzed) > 0 or
-             len(self.media_attachments.images_analyzed) > 0)
-        )
-    
-    @property
-    def is_thread_tweet(self) -> bool:
-        """Check if tweet is part of a thread"""
-        return (
-            self.thread_context is not None and
-            self.thread_context.is_thread
-        )
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
 

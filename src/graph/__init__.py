@@ -1,10 +1,7 @@
 """
-LangGraph Workflow
-==================
-StateGraph definition and workflow logic.
+LangGraph workflow definition module
 """
-
-# Will be populated during Milestone 4
+# Graph workflow will be added here
 
 __all__ = []
 
