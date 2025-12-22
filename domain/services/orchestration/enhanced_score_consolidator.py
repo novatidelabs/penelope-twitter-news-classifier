@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from ...entities.analysis_result import AnalysisResult, AnalysisStatus
+from infrastructure.config import config
 
 
 @dataclass
@@ -62,23 +63,23 @@ class EnhancedScoreConsolidator:
         # Define score adjustment parameters
         self.adjustment_config = {
             'sarcasm_protection': {
-                'max_boost': 2.0,
-                'threshold': 0.5  # Sarcasm probability threshold
+                'max_boost': config.sarcasm_protection_max_boost,
+                'threshold': config.sarcasm_protection_threshold
             },
             'echo_velocity_boost': {
-                'max_boost': 1.5,
-                'threshold': 0.5,  # Echo velocity threshold
-                'scaling': 2.0
+                'max_boost': config.echo_velocity_max_boost,
+                'threshold': config.echo_velocity_threshold,
+                'scaling': config.echo_velocity_scaling
             },
             'slop_penalty': {
-                'max_penalty': 2.5,
-                'threshold': 0.7,  # Slop score threshold
-                'scaling': 3.0
+                'max_penalty': config.slop_penalty_max,
+                'threshold': config.slop_penalty_threshold,
+                'scaling': config.slop_penalty_scaling
             },
             'tone_penalty': {
-                'max_penalty': 2.0,
-                'threshold': 0.3,  # Tone penalty threshold
-                'scaling': 2.5
+                'max_penalty': config.tone_penalty_max,
+                'threshold': config.tone_penalty_threshold,
+                'scaling': config.tone_penalty_scaling
             }
         }
     
