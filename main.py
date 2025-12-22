@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from loguru import logger
 
 from src.graph import graph
-from src.models.state import AnalysisState
+from src.state import AnalysisState
 
 load_dotenv()
 
@@ -27,17 +27,26 @@ logging.basicConfig(
 def create_initial_state(
     tweet_id: str,
     tweet_text: str,
-    tweet_data: Dict[str, Any],
+    tweet_metadata: Dict[str, Any],
     session_id: str = None
 ) -> AnalysisState:
-    """Create initial state for LangGraph workflow."""
+    """
+    Create initial state for LangGraph workflow.
+    
+    Only these 3 fields should be provided as input:
+    - tweet_id: ID of the tweet
+    - tweet_text: Text content of the tweet
+    - tweet_metadata: Metadata dictionary (author, timestamps, engagement metrics, etc.)
+    """
     if not session_id:
         session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
     return AnalysisState(
         tweet_id=tweet_id,
         tweet_text=tweet_text,
-        tweet_data=tweet_data,
+        tweet_metadata=tweet_metadata,
+        # Keep tweet_data for backward compatibility
+        tweet_data=tweet_metadata,
     )
 
 
@@ -137,7 +146,7 @@ async def main():
             initial_state = create_initial_state(
                 tweet_id=tweet_id,
                 tweet_text=tweet_text,
-                tweet_data=tweet_data,
+                tweet_metadata=tweet_data,
                 session_id=f"{session_id}_tweet_{idx}"
             )
             

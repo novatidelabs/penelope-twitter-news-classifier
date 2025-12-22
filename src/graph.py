@@ -1,8 +1,19 @@
 """LangGraph workflow for Twitter News Classification."""
 
+import os
 from langgraph.graph import END, START, StateGraph
-from src.models.state import AnalysisState
+from src.state import AnalysisState, TweetInput
 from src.api.client import APIClient
+
+# Configure LangSmith tracing if available
+if os.getenv("LANGCHAIN_TRACING_V2"):
+    os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2", "true")
+if os.getenv("LANGCHAIN_ENDPOINT"):
+    os.environ["LANGCHAIN_ENDPOINT"] = os.getenv("LANGCHAIN_ENDPOINT")
+if os.getenv("LANGCHAIN_API_KEY"):
+    os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
+if os.getenv("LANGCHAIN_PROJECT"):
+    os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGCHAIN_PROJECT")
 
 # Signal Integrity Agents
 from src.agents.specialized.sarcasm_sentinel_agent.agent import sarcasm_sentinel_agent
@@ -28,7 +39,10 @@ from src.agents.specialized.validator_agent.agent import validator_agent
 
 def create_graph(api_client: APIClient):
     """Create and compile the LangGraph workflow."""
-    builder = StateGraph(AnalysisState)
+    builder = StateGraph(
+        AnalysisState,
+        input_schema=TweetInput,
+    )
     
     # Signal Integrity nodes
     async def sarcasm_node(state: AnalysisState):
@@ -140,8 +154,5 @@ def create_graph(api_client: APIClient):
 
 
 # Default graph instance for LangGraph Studio
-from src.api.client import APIClient
-
 _default_api_client = APIClient()
 graph = create_graph(_default_api_client)
-

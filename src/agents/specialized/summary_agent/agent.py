@@ -2,7 +2,7 @@
 
 import logging
 from typing import Dict, Any
-from src.models.state import AnalysisState
+from src.state import AnalysisState
 from src.api.client import APIClient
 from src.agents.core.base_agent import BaseAgent
 from .prompt import SUMMARY_INSTRUCTIONS
@@ -19,10 +19,11 @@ async def summary_agent(state: AnalysisState, api_client: APIClient) -> Dict[str
     try:
         tweet_text = base_agent.extract_tweet_text(state)
         
+        metadata = base_agent.get_tweet_metadata(state)
         prompt = f"""{SUMMARY_INSTRUCTIONS}
 
 Tweet Content: {tweet_text[:1200]}
-Author: {state.get('tweet_data', {}).get('author_username', 'N/A')}
+Author: {metadata.get('author_username', 'N/A')}
 Tweet ID: {state.get('tweet_id', 'N/A')}
 """
         

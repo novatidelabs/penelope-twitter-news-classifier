@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     openai_max_tokens: int = 2000
     openai_temperature: float = 0.3
     
+    # LangSmith/LangChain Configuration
+    langchain_tracing_v2: Optional[str] = None
+    langchain_endpoint: Optional[str] = None
+    langchain_api_key: Optional[str] = None
+    langchain_project: Optional[str] = None
+    
     # Twitter API Configuration (Optional)
     twitter_api_key: Optional[str] = None
     twitter_api_secret: Optional[str] = None

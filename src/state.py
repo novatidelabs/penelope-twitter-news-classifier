@@ -6,6 +6,15 @@ from typing import TypedDict, Optional, Dict, Any, List
 from typing_extensions import NotRequired
 
 
+class TweetInput(TypedDict):
+    """
+    Input schema for LangGraph - only these 3 fields should be provided as input.
+    """
+    tweet_id: str
+    tweet_text: str
+    tweet_metadata: Dict[str, Any]
+
+
 class AnalysisState(TypedDict, total=False):
     """
     LangGraph state definition for tweet analysis workflow.
@@ -14,9 +23,12 @@ class AnalysisState(TypedDict, total=False):
     This is compatible with LangGraph's state management.
     """
     
-    # Input fields
+    # Input fields (only these 3 should be provided initially)
     tweet_id: NotRequired[str]
     tweet_text: NotRequired[str]
+    tweet_metadata: NotRequired[Dict[str, Any]]
+    
+    # Legacy field name (for backward compatibility, maps to tweet_metadata)
     tweet_data: NotRequired[Dict[str, Any]]
     
     # Signal Integrity Results

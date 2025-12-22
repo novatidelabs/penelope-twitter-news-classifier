@@ -2,7 +2,8 @@
 State and data models for LangGraph workflow
 """
 
-from .state import AnalysisState
+# Re-export from src.state for backward compatibility
+from src.state import AnalysisState, TweetInput
 
-__all__ = ["AnalysisState"]
+__all__ = ["AnalysisState", "TweetInput"]
 

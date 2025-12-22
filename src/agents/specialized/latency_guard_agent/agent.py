@@ -2,7 +2,7 @@
 
 import logging
 from typing import Dict, Any
-from src.models.state import AnalysisState
+from src.state import AnalysisState
 from src.api.client import APIClient
 from src.agents.core.base_agent import BaseAgent
 from .prompt import LATENCY_GUARD_INSTRUCTIONS
