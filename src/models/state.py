@@ -1,62 +1,79 @@
 """
-Analysis State Model for LangGraph Workflow
-
-Defines the state structure that flows through the LangGraph workflow.
-Uses TypedDict for flexibility with optional fields.
+Analysis State Model for LangGraph
 """
+
 from typing import TypedDict, Optional, Dict, Any, List
+from typing_extensions import NotRequired
 
 
 class AnalysisState(TypedDict, total=False):
     """
-    State structure for the analysis workflow.
+    LangGraph state definition for tweet analysis workflow.
     
-    Uses TypedDict with total=False to make all fields optional,
-    allowing incremental state updates as the workflow progresses.
+    Uses TypedDict with total=False to allow optional fields.
+    This is compatible with LangGraph's state management.
     """
     
     # Input fields
-    tweet_id: str
-    tweet_text: str
-    tweet_data: Dict[str, Any]
+    tweet_id: NotRequired[str]
+    tweet_text: NotRequired[str]
+    tweet_data: NotRequired[Dict[str, Any]]
     
     # Signal Integrity Results
-    sarcasm_score: float
-    sarcasm_detected: bool
-    sarcasm_reasoning: str
+    sarcasm_score: NotRequired[float]
+    sarcasm_detected: NotRequired[bool]
+    sarcasm_reasoning: NotRequired[str]
     
-    echo_detected: bool
-    echo_velocity: float
-    reddit_threads: int
+    echo_detected: NotRequired[bool]
+    echo_velocity: NotRequired[float]
+    reddit_threads: NotRequired[int]
     
-    latency_valid: bool
-    content_repriced: bool
-    time_delta_seconds: int
+    latency_valid: NotRequired[bool]
+    content_repriced: NotRequired[bool]
+    time_delta_seconds: NotRequired[float]
     
-    quality_pass: bool
-    quality_score: float
-    quality_reasoning: str
+    quality_pass: NotRequired[bool]
+    quality_score: NotRequired[float]
+    quality_reasoning: NotRequired[str]
     
-    banned_phrases: List[str]
-    banned_phrase_penalty: float
+    banned_phrases: NotRequired[List[str]]
+    tone_penalty: NotRequired[float]
     
     # Core Analysis Results
-    summary: str
-    context_score: float
-    fact_check_results: Dict[str, Any]
-    depth_score: float
-    relevance_score: float
-    structure_score: float
-    reflection_score: float
-    metadata_score: float
-    consensus_score: float
+    summary: NotRequired[str]
+    title: NotRequired[str]
+    abstract: NotRequired[str]
+    
+    context_score: NotRequired[float]
+    context_reasoning: NotRequired[str]
+    
+    fact_check_results: NotRequired[Dict[str, Any]]
+    fact_check_score: NotRequired[float]
+    
+    depth_score: NotRequired[float]
+    depth_reasoning: NotRequired[str]
+    
+    relevance_score: NotRequired[float]
+    relevance_reasoning: NotRequired[str]
+    
+    structure_score: NotRequired[float]
+    structure_reasoning: NotRequired[str]
+    
+    reflection_score: NotRequired[float]
+    reflection_reasoning: NotRequired[str]
+    
+    metadata_score: NotRequired[float]
+    metadata_reasoning: NotRequired[str]
+    
+    consensus_score: NotRequired[float]
+    consensus_reasoning: NotRequired[str]
     
     # Final Output
-    overall_score: float
-    recommendation: str
-    formatted_output: Dict[str, Any]
+    overall_score: NotRequired[float]
+    recommendation: NotRequired[str]
+    formatted_output: NotRequired[Dict[str, Any]]
     
-    # Metadata
-    agent_responses: Dict[str, Any]
-    execution_metadata: Dict[str, Any]
+    # Error handling
+    error: NotRequired[str]
+    error_message: NotRequired[str]
 

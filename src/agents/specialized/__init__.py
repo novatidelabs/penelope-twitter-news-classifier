@@ -1,3 +1,3 @@
 """
-Specialized agents module - Domain-specific agent implementations
+Specialized agent implementations
 """

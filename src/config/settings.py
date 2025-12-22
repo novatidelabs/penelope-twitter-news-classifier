@@ -1,52 +1,56 @@
 """
-Application Settings using Pydantic Settings
-
-Centralized configuration management with environment variable support.
+Configuration Settings using Pydantic Settings
 """
-from pydantic_settings import BaseSettings
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 
 class Settings(BaseSettings):
     """
-    Application settings with Pydantic Settings.
+    Application configuration settings loaded from environment variables.
     
-    Automatically loads from environment variables or .env file.
+    Uses Pydantic Settings for type-safe configuration management.
     """
     
-    # Application
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore"
+    )
+    
+    # Application Settings
     app_name: str = "TwitterNewsClassifier"
     app_version: str = "2.0"
     
-    # OpenAI API (Required)
+    # OpenAI Configuration
     openai_api_key: Optional[str] = None
     openai_model: str = "gpt-4"
     openai_max_tokens: int = 2000
     openai_temperature: float = 0.3
     
-    # Twitter API (Optional)
+    # Twitter API Configuration (Optional)
     twitter_api_key: Optional[str] = None
     twitter_api_secret: Optional[str] = None
     twitter_access_token: Optional[str] = None
     twitter_access_token_secret: Optional[str] = None
     twitter_bearer_token: Optional[str] = None
     
-    # Reddit API (Optional)
+    # Reddit API Configuration (Optional)
     reddit_client_id: Optional[str] = None
     reddit_client_secret: Optional[str] = None
     reddit_user_agent: str = "TwitterNewsClassifier/2.0"
     
-    # Binance API (Optional)
+    # Cryptocurrency Exchange APIs (Optional)
     binance_api_key: Optional[str] = None
     binance_api_secret: Optional[str] = None
-    
-    # Coinbase API (Optional)
     coinbase_api_key: Optional[str] = None
     coinbase_api_secret: Optional[str] = None
     coinbase_api_passphrase: Optional[str] = None
     
     # Analysis Configuration
-    default_analysis_timeout: int = 60
+    default_analysis_timeout: int = 60  # seconds
     max_tweets_per_batch: int = 10
     score_scale_min: int = 0
     score_scale_max: int = 10
@@ -79,7 +83,7 @@ class Settings(BaseSettings):
     log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     log_level: str = "INFO"
     
-    # API Rate Limits
+    # API Rate Limits (requests per minute)
     openai_rate_limit: int = 60
     reddit_rate_limit: int = 60
     binance_rate_limit: int = 1200
@@ -97,8 +101,12 @@ class Settings(BaseSettings):
     sarcasm_detection_enabled: bool = True
     slop_filter_enabled: bool = True
     
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
+    @property
+    def user_agent(self) -> str:
+        """Generate user agent string from app name and version"""
+        return f"{self.app_name}/{self.app_version}"
+
+
+# Global settings instance
+settings = Settings()
 

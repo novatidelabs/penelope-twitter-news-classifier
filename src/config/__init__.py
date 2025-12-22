@@ -1,10 +1,8 @@
 """
-Configuration module using Pydantic Settings
+Configuration module with Pydantic Settings
 """
-from .settings import Settings
 
-# Create global settings instance
-settings = Settings()
+from .settings import Settings, settings
 
-__all__ = ['Settings', 'settings']
+__all__ = ["Settings", "settings"]
 
