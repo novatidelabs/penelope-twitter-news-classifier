@@ -138,3 +138,10 @@ def create_graph(api_client: APIClient):
     
     return builder.compile()
 
+
+# Default graph instance for LangGraph Studio
+from src.api.client import APIClient
+
+_default_api_client = APIClient()
+graph = create_graph(_default_api_client)
+

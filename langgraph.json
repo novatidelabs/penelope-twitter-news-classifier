@@ -1,0 +1,14 @@
+{
+  "dependencies": [
+    "."
+  ],
+  "graphs": {
+    "twitter_classifier": "src.graph:graph"
+  },
+  "env": ".env",
+  "python_version": "3.11",
+  "store": {
+    "max_doc_size": 10000000
+  }
+}
+

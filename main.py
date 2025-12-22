@@ -1,67 +1,48 @@
 #!/usr/bin/env python3
-"""Twitter News Classifier - LangGraph Implementation"""
+"""
+Multi-agent Twitter news classification system using LangGraph workflows.
+"""
 
 import asyncio
 import json
 import logging
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List
 
 from dotenv import load_dotenv
+from loguru import logger
 
-from src.graph import create_graph
-from src.api.client import APIClient
+from src.graph import graph
 from src.models.state import AnalysisState
+
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
 
 
-async def main():
-    """Main execution function"""
-    print("🎯 TWITTER NEWS CLASSIFIER - LANGGRAPH SYSTEM")
-    print("=" * 50)
+def create_initial_state(
+    tweet_id: str,
+    tweet_text: str,
+    tweet_data: Dict[str, Any],
+    session_id: str = None
+) -> AnalysisState:
+    """Create initial state for LangGraph workflow."""
+    if not session_id:
+        session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
-    load_dotenv()
-    
-    openai_api_key = os.getenv('OPENAI_API_KEY')
-    if not openai_api_key:
-        logger.error("❌ OPENAI_API_KEY not found in environment variables")
-        return
-    
-    print("📊 Initializing LangGraph workflow...")
-    print("   🛰️  5 Signal Integrity Agents")
-    print("   📡 12 Core Analysis Agents")
-    print("=" * 50)
-    
-    try:
-        tweets_data = await load_tweets_data()
-        if not tweets_data:
-            logger.error("❌ No tweets data found")
-            return
-        
-        print(f"📈 Processing {len(tweets_data)} tweets...")
-        
-        api_client = APIClient()
-        graph = create_graph(api_client)
-        
-        results = await process_tweets(tweets_data, graph)
-        
-        output_file = await save_results(results)
-        display_final_summary(results, output_file)
-        
-    except Exception as e:
-        logger.error(f"❌ Error in main execution: {str(e)}")
-        raise
+    return AnalysisState(
+        tweet_id=tweet_id,
+        tweet_text=tweet_text,
+        tweet_data=tweet_data,
+    )
 
 
 async def load_tweets_data() -> List[Dict[str, Any]]:
-    """Load tweets from the most recent extraction"""
+    """Load tweets from the most recent extraction."""
     try:
         data_dir = Path("data")
         extraction_files = []
@@ -72,11 +53,11 @@ async def load_tweets_data() -> List[Dict[str, Any]]:
                     extraction_files.append(item)
         
         if not extraction_files:
-            logger.warning("⚠️  No extracted tweets found, using sample data")
+            logger.warning("No extracted tweets found, using sample data")
             return get_sample_tweets()
         
         latest_file = max(extraction_files, key=lambda x: x.stat().st_mtime)
-        logger.info(f"📁 Loading tweets from: {latest_file}")
+        logger.info(f"Reading: {latest_file}")
         
         with open(latest_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -86,16 +67,16 @@ async def load_tweets_data() -> List[Dict[str, Any]]:
         elif isinstance(data, dict) and 'tweets' in data:
             return data['tweets'][:25]
         else:
-            logger.warning("⚠️  Unexpected tweet data format, using sample data")
+            logger.warning("Unexpected tweet data format, using sample data")
             return get_sample_tweets()
             
     except Exception as e:
-        logger.warning(f"⚠️  Error loading tweets: {str(e)}, using sample data")
+        logger.warning(f"Error loading tweets: {str(e)}, using sample data")
         return get_sample_tweets()
 
 
 def get_sample_tweets() -> List[Dict[str, Any]]:
-    """Generate sample tweets for testing"""
+    """Generate sample tweets for testing."""
     return [
         {
             "tweet_id": "1953769308057682392",
@@ -129,157 +110,142 @@ def get_sample_tweets() -> List[Dict[str, Any]]:
     ]
 
 
-def create_initial_state(tweet_data: Dict[str, Any]) -> AnalysisState:
-    """Create initial state for LangGraph"""
-    return AnalysisState(
-        tweet_id=tweet_data['tweet_id'],
-        tweet_text=tweet_data['text'],
-        tweet_data=tweet_data,
-    )
-
-
-async def process_tweets(tweets_data: List[Dict[str, Any]], graph) -> Dict[str, Any]:
-    """Process all tweets through LangGraph"""
-    results = {
-        "analysis_metadata": {
-            "timestamp": datetime.now().isoformat(),
-            "total_tweets": len(tweets_data),
-            "agents_count": 17,
-            "language": "English"
-        },
-        "tweets_analysis": []
-    }
+async def main():
+    """Process tweets with LangGraph workflow."""
+    logger.info("Starting Twitter News Classifier...")
     
-    for i, tweet_data in enumerate(tweets_data, 1):
-        print(f"\n🔬 PROCESSING TWEET {i}/{len(tweets_data)}")
-        print(f"🐦 Tweet ID: {tweet_data['tweet_id']}")
-        print(f"📝 Content: {tweet_data['text'][:100]}...")
-        print("=" * 60)
+    output_dir = Path("results")
+    output_dir.mkdir(exist_ok=True)
+    
+    logger.info("Loading tweets...")
+    tweets = await load_tweets_data()
+    tweets = tweets[:5]  # Process first 5 tweets
+    
+    logger.info(f"Processing {len(tweets)} tweets")
+    
+    session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    batch_results = []
+    batch_start = datetime.now()
+    
+    for idx, tweet_data in enumerate(tweets, 1):
+        tweet_text = tweet_data.get('text', '')
+        tweet_id = tweet_data.get('tweet_id', f'unknown_{idx}')
+        
+        logger.info(f"Tweet {idx}/{len(tweets)}: {tweet_text[:50]}...")
         
         try:
-            initial_state = create_initial_state(tweet_data)
+            initial_state = create_initial_state(
+                tweet_id=tweet_id,
+                tweet_text=tweet_text,
+                tweet_data=tweet_data,
+                session_id=f"{session_id}_tweet_{idx}"
+            )
             
-            print("🔄 Executing LangGraph workflow...")
-            final_state = await graph.ainvoke(initial_state)
+            result = await graph.ainvoke(initial_state)
             
-            tweet_analysis = {
-                "tweet_metadata": {
-                    "tweet_id": tweet_data['tweet_id'],
-                    "text": tweet_data['text'],
-                    "created_at": tweet_data['created_at'],
-                    "author_username": tweet_data['author_username'],
-                    "author_id": tweet_data['author_id'],
-                    "engagement_metrics": {
-                        "like_count": tweet_data.get('like_count', 0),
-                        "retweet_count": tweet_data.get('retweet_count', 0),
-                        "reply_count": tweet_data.get('reply_count', 0),
-                        "quote_count": tweet_data.get('quote_count', 0)
-                    }
+            overall_score = result.get("overall_score", 0.0)
+            recommendation = result.get("recommendation", "Review")
+            summary = result.get("summary", "")
+            title = result.get("title", "")
+            
+            # Signal Integrity Results
+            sarcasm_detected = result.get("sarcasm_detected", False)
+            sarcasm_score = result.get("sarcasm_score", 0.0)
+            echo_detected = result.get("echo_detected", False)
+            echo_velocity = result.get("echo_velocity", 0.0)
+            quality_pass = result.get("quality_pass", True)
+            quality_score = result.get("quality_score", 0.0)
+            
+            # Core Analysis Results
+            context_score = result.get("context_score", 0.0)
+            fact_check_score = result.get("fact_check_score", 0.0)
+            depth_score = result.get("depth_score", 0.0)
+            relevance_score = result.get("relevance_score", 0.0)
+            structure_score = result.get("structure_score", 0.0)
+            reflection_score = result.get("reflection_score", 0.0)
+            metadata_score = result.get("metadata_score", 0.0)
+            consensus_score = result.get("consensus_score", 0.0)
+            
+            batch_results.append({
+                "tweet_id": tweet_id,
+                "tweet_text": tweet_text[:200],  # Truncate for readability
+                "author_username": tweet_data.get("author_username", "unknown"),
+                "overall_score": overall_score,
+                "recommendation": recommendation,
+                "summary": summary[:200] if summary else "",
+                "title": title[:100] if title else "",
+                "signal_integrity": {
+                    "sarcasm_detected": sarcasm_detected,
+                    "sarcasm_score": sarcasm_score,
+                    "echo_detected": echo_detected,
+                    "echo_velocity": echo_velocity,
+                    "quality_pass": quality_pass,
+                    "quality_score": quality_score,
                 },
-                "signal_integrity_results": {
-                    "sarcasm_detected": final_state.get("sarcasm_detected", False),
-                    "sarcasm_score": final_state.get("sarcasm_score", 0.0),
-                    "echo_detected": final_state.get("echo_detected", False),
-                    "echo_velocity": final_state.get("echo_velocity", 0.0),
-                    "latency_valid": final_state.get("latency_valid", True),
-                    "content_repriced": final_state.get("content_repriced", False),
-                    "quality_pass": final_state.get("quality_pass", True),
-                    "quality_score": final_state.get("quality_score", 0.0),
-                    "banned_phrases": final_state.get("banned_phrases", []),
-                    "tone_penalty": final_state.get("tone_penalty", 0.0),
+                "core_analysis_scores": {
+                    "context_score": context_score,
+                    "fact_check_score": fact_check_score,
+                    "depth_score": depth_score,
+                    "relevance_score": relevance_score,
+                    "structure_score": structure_score,
+                    "reflection_score": reflection_score,
+                    "metadata_score": metadata_score,
+                    "consensus_score": consensus_score,
                 },
-                "core_analysis_results": {
-                    "summary": final_state.get("summary", ""),
-                    "title": final_state.get("title", ""),
-                    "context_score": final_state.get("context_score", 0.0),
-                    "fact_check_score": final_state.get("fact_check_score", 0.0),
-                    "depth_score": final_state.get("depth_score", 0.0),
-                    "relevance_score": final_state.get("relevance_score", 0.0),
-                    "structure_score": final_state.get("structure_score", 0.0),
-                    "reflection_score": final_state.get("reflection_score", 0.0),
-                    "metadata_score": final_state.get("metadata_score", 0.0),
-                    "consensus_score": final_state.get("consensus_score", 0.0),
-                },
-                "final_output": {
-                    "overall_score": final_state.get("overall_score", 0.0),
-                    "recommendation": final_state.get("recommendation", "Review"),
-                    "processing_complete": True,
-                }
-            }
+                "processing_complete": result.get("processing_complete", True),
+                "error": result.get("error"),
+            })
             
-            results["tweets_analysis"].append(tweet_analysis)
-            
-            overall_score = final_state.get("overall_score", 0.0)
-            recommendation = final_state.get("recommendation", "Review")
-            
-            print(f"🎯 FINAL SCORE: {overall_score:.3f}")
-            print(f"📊 RECOMMENDATION: {recommendation}")
-            print("✅ TWEET ANALYSIS COMPLETED")
+            logger.success(
+                f"Tweet {idx} complete | "
+                f"Score: {overall_score:.1f}/10 | "
+                f"Recommendation: {recommendation} | "
+                f"Quality: {'PASS' if quality_pass else 'FAIL'}"
+            )
             
         except Exception as e:
-            logger.error(f"❌ Error processing tweet {tweet_data['tweet_id']}: {str(e)}")
-            results["tweets_analysis"].append({
-                "tweet_metadata": {"tweet_id": tweet_data['tweet_id']},
+            logger.error(f"Tweet {idx} failed: {e}")
+            batch_results.append({
+                "tweet_id": tweet_id,
+                "tweet_text": tweet_text[:200],
+                "author_username": tweet_data.get("author_username", "unknown"),
+                "overall_score": 0.0,
+                "recommendation": "ERROR",
+                "processing_complete": False,
                 "error": str(e),
-                "processing_complete": False
             })
-            continue
     
-    return results
-
-
-async def save_results(results: Dict[str, Any]) -> Path:
-    """Save results to JSON file"""
-    try:
-        results_dir = Path("results")
-        results_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"twitter_analysis_results_{timestamp}.json"
-        output_file = results_dir / filename
-        
-        results["analysis_summary"] = {
-            "total_tweets_processed": len(results["tweets_analysis"]),
-            "successful_analyses": len([t for t in results["tweets_analysis"] if t.get("processing_complete", False)]),
-            "failed_analyses": len([t for t in results["tweets_analysis"] if not t.get("processing_complete", False)]),
-            "success_rate_percentage": (
-                len([t for t in results["tweets_analysis"] if t.get("processing_complete", False)]) / 
-                len(results["tweets_analysis"]) * 100
-                if results["tweets_analysis"] else 0
-            )
-        }
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(results, f, indent=2, ensure_ascii=False, default=str)
-        
-        logger.info(f"✅ Results saved to: {output_file}")
-        return output_file
-        
-    except Exception as e:
-        logger.error(f"❌ Error saving results: {str(e)}")
-        raise
-
-
-def display_final_summary(results: Dict[str, Any], output_file: Path):
-    """Display final execution summary"""
-    print("\n" + "=" * 60)
-    print("🎉 TWITTER NEWS CLASSIFIER - EXECUTION COMPLETED")
-    print("=" * 60)
+    batch_end = datetime.now()
     
-    summary = results["analysis_summary"]
-    print("📊 ANALYSIS SUMMARY:")
-    print(f"   ✅ Tweets Processed: {summary['total_tweets_processed']}")
-    print(f"   ✅ Successful Analyses: {summary['successful_analyses']}")
-    print(f"   ❌ Failed Analyses: {summary['failed_analyses']}")
-    print(f"   📈 Success Rate: {summary['success_rate_percentage']:.1f}%")
+    results_file = output_dir / f"twitter_classification_results_{session_id}.json"
+    with open(results_file, "w", encoding='utf-8') as f:
+        json.dump({
+            "session_id": session_id,
+            "start_time": batch_start.isoformat(),
+            "end_time": batch_end.isoformat(),
+            "total_tweets": len(tweets),
+            "completed_tweets": sum(1 for r in batch_results if r.get("processing_complete")),
+            "failed_tweets": sum(1 for r in batch_results if not r.get("processing_complete")),
+            "results": batch_results,
+            "configuration": {
+                "agents_count": 17,
+                "signal_integrity_agents": 5,
+                "core_analysis_agents": 12,
+            }
+        }, f, indent=2, ensure_ascii=False, default=str)
     
-    print("\n📁 RESULTS LOCATION:")
-    print(f"   📄 File: {output_file}")
-    if output_file.exists():
-        print(f"   📊 Size: {output_file.stat().st_size:,} bytes")
+    logger.info(f"Results saved: {results_file}")
     
-    print("\n🌟 LANGGRAPH WORKFLOW SYSTEM OPERATIONAL! 🌟")
-    print("=" * 60)
+    # Summary
+    completed = sum(1 for r in batch_results if r.get("processing_complete"))
+    failed = len(batch_results) - completed
+    avg_scores = [r["overall_score"] for r in batch_results if r.get("overall_score", 0) > 0]
+    
+    logger.info(f"Summary: {completed}/{len(tweets)} completed, {failed} failed")
+    if avg_scores:
+        logger.info(f"Average score: {sum(avg_scores) / len(avg_scores):.2f}/10")
+    logger.info(f"Duration: {(batch_end - batch_start).total_seconds():.1f}s")
+    logger.success("Done!")
 
 
 if __name__ == "__main__":
