@@ -208,5 +208,5 @@ __marimo__/
 results/
 github/
 
-# Folders 
-langgraph_api/
+# LangGraph API files
+.langgraph_api/
