@@ -1,0 +1,7 @@
+"""
+Core agent functionality and base agent patterns
+"""
+
+from .base_agent import BaseAgent
+
+__all__ = ["BaseAgent"]
